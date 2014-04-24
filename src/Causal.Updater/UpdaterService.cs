@@ -1,47 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Owin.Hosting;
 
 namespace Causal.Updater
 {
-    public partial class UpdaterService : ServiceBase
+    internal sealed class UpdaterService : ServiceBase
     {
-        private static void Main(string[] args)
+        private IDisposable webApp;
+
+        static void Main()
         {
             var service = new UpdaterService();
-
 #if DEBUG
-            service.Start(args);
+            service.OnStart(new string[0]);
             System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
 #else
-            ServiceBase[] servicesToRun;
-            servicesToRun = new ServiceBase[] { new UpdaterService() };
-            ServiceBase.Run(servicesToRun);
+            ServiceBase.Run(service);
 #endif
-        }
-
-        public UpdaterService()
-        {
-            InitializeComponent();
-        }
-
-        internal void Start(string[] args)
-        {
-            OnStart(args);
         }
 
         protected override void OnStart(string[] args)
         {
+            var baseAddress = "http://+:32111/causalupdater/";
+            this.webApp = WebApp.Start<Startup>(url: baseAddress);
         }
 
-        protected override void OnStop()
+        protected override void Dispose(bool disposing)
         {
+            if (disposing)
+            {
+                if (this.webApp != null)
+                    this.webApp.Dispose();
+            }
+            base.Dispose(disposing);
         }
+
     }
 }

@@ -9,6 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{9B4E77
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Causal.Model", "Causal.Model\Causal.Model.csproj", "{7867FFBC-B2DF-4BEA-8F2C-65F9965DEDB0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{96DB2A9B-B8D8-42B0-A283-8F3EE92E28FC}"
+	ProjectSection(SolutionItems) = preProject
+		..\Implementation.md = ..\Implementation.md
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
