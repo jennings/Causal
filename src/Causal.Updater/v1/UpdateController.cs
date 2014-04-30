@@ -5,11 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Causal.Model.Updater.v1;
+using Causal.Updater.Updates;
 
 namespace Causal.Updater.v1
 {
     public class UpdateController : ApiController
     {
+        private readonly UpdateRunner updateRunner;
+
+        public UpdateController()
+        {
+            this.updateRunner = new UpdateRunner();
+        }
+
         public UpdateStatus Get(string productId)
         {
             return new UpdateStatus
@@ -20,12 +28,11 @@ namespace Causal.Updater.v1
 
         public UpdateRequestResponse Post(UpdateRequest request)
         {
-            var updater = new Causal.Updater.Updates.MsiUpdateRunner();
-            updater.Update();
+            var willUpdate = this.updateRunner.BeginUpdate(request.ProductId);
             return new UpdateRequestResponse
             {
                 ProductId = request.ProductId,
-                UpdateBeginning = true
+                UpdateBeginning = willUpdate
             };
         }
     }

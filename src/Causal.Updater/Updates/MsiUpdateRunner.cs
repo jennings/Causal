@@ -9,7 +9,7 @@ namespace Causal.Updater.Updates
 {
     internal sealed class MsiUpdateRunner
     {
-        public UpdateResult Update()
+        public async Task Update()
         {
             var path = @"C:\Temp\SampleProduct.msi";
             var args = string.Format(@"/i ""{0}"" /qn", path);
@@ -20,28 +20,45 @@ namespace Causal.Updater.Updates
             };
 
             var process = Process.Start(psi);
-            if (process.WaitForExit(TimeSpan.FromMinutes(10).Milliseconds))
+            var installTask = Task.Run(() => process.WaitForExit());
+            var timeoutTask = Task.Delay(TimeSpan.FromMinutes(10));
+
+            var completedTask = await Task.WhenAny(installTask, timeoutTask);
+
+            if (completedTask == timeoutTask)
             {
-                switch (process.ExitCode)
-                {
-                    case MsiExecReturnCode.Success:
-                        return UpdateResult.Success;
-
-                    case MsiExecReturnCode.SuccessRebootRequired:
-                        return UpdateResult.RebootRequired;
-
-                    default:
-                        return UpdateResult.Failed;
-                }
+                throw new Exception("Update timed out");
+            }
+            else if (!process.HasExited)
+            {
+                throw new Exception("Update timeout did not fire, but the process has not exited");
             }
 
-            return UpdateResult.Failed;
+            switch (process.ExitCode)
+            {
+                case MsiExecReturnCode.Success:
+                    return;
+
+                case MsiExecReturnCode.ProductVersion:
+                    // Product is already installed
+                    return;
+
+                case MsiExecReturnCode.SuccessRebootRequired:
+                    throw new Exception("Reboot required");
+
+                default:
+                    throw new Exception("MSIEXEC.EXE exited with exit code " + process.ExitCode);
+            }
         }
 
         private static class MsiExecReturnCode
         {
             public const int Success = 0;
             public const int SuccessRebootRequired = 3010;
+
+            public const int InstallAlreadyRunning = 1618;
+
+            public const int ProductVersion = 1638;
         }
     }
 }
