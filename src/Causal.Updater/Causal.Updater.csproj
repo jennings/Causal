@@ -72,6 +72,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Updates\UpdateResult.cs" />
+    <Compile Include="Updates\MsiUpdateRunner.cs" />
     <Compile Include="v1\UpdateController.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

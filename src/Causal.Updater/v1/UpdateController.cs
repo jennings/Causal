@@ -20,6 +20,8 @@ namespace Causal.Updater.v1
 
         public UpdateRequestResponse Post(UpdateRequest request)
         {
+            var updater = new Causal.Updater.Updates.MsiUpdateRunner();
+            updater.Update();
             return new UpdateRequestResponse
             {
                 ProductId = request.ProductId,
