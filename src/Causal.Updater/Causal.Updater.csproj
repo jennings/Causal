@@ -72,6 +72,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Storage\IConfiguration.cs" />
+    <Compile Include="Storage\JsonSerializedConfiguration.cs" />
     <Compile Include="Updates\UpdateRunner.cs" />
     <Compile Include="Updates\MsiUpdateRunner.cs" />
     <Compile Include="v1\UpdateController.cs" />
