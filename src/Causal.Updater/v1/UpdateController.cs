@@ -18,20 +18,20 @@ namespace Causal.Updater.v1
             this.updateRunner = new UpdateRunner();
         }
 
-        public UpdateStatus Get(string productId)
+        public UpdateStatus Get(string id)
         {
             return new UpdateStatus
             {
-                ProductId = productId
+                ProductId = id
             };
         }
 
-        public UpdateRequestResponse Post(UpdateRequest request)
+        public UpdateRequestResponse Post(string id)
         {
-            var willUpdate = this.updateRunner.BeginUpdate(request.ProductId);
+            var willUpdate = this.updateRunner.BeginUpdate(id);
             return new UpdateRequestResponse
             {
-                ProductId = request.ProductId,
+                ProductId = id,
                 UpdateBeginning = willUpdate
             };
         }

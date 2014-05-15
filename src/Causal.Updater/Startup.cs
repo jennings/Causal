@@ -15,8 +15,8 @@ namespace Causal.Updater
             var config = new HttpConfiguration();
             config.Routes.MapHttpRoute(
                 name: "main",
-                routeTemplate: "1/{controller}/{productId}",
-                defaults: new { productId = RouteParameter.Optional }
+                routeTemplate: "1/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
                 );
 
             appBuilder.UseWebApi(config);
