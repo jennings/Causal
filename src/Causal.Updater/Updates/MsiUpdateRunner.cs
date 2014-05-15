@@ -4,50 +4,56 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Deployment.WindowsInstaller;
 
 namespace Causal.Updater.Updates
 {
     internal sealed class MsiUpdateRunner
     {
+        private static object installerMutex = new object();
+
         public async Task Update()
         {
             var path = @"C:\Temp\SampleProduct.msi";
-            var args = string.Format(@"/i ""{0}"" /qn", path);
-            var psi = new ProcessStartInfo()
-            {
-                FileName = "msiexec.exe",
-                Arguments = args
-            };
 
-            var process = Process.Start(psi);
-            var installTask = Task.Run(() => process.WaitForExit());
+            bool rebootInitiated;
+            bool rebootRequired;
+
+            var installTask = Task.Run(() =>
+            {
+                lock (installerMutex)
+                {
+                    Installer.SetInternalUI(InstallUIOptions.Silent);
+                    Installer.InstallProduct(path, "");
+                    rebootInitiated = Installer.RebootInitiated;
+                    rebootRequired = Installer.RebootRequired;
+                }
+            });
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(10));
 
-            var completedTask = await Task.WhenAny(installTask, timeoutTask);
-
-            if (completedTask == timeoutTask)
+            try
             {
-                throw new Exception("Update timed out");
+                // Wait for the installer to finish or the timeout to expire.
+                // If the timeout expires, throw.
+                if (timeoutTask == await Task.WhenAny(installTask, timeoutTask))
+                {
+                    throw new Exception("Update timed out");
+                }
             }
-            else if (!process.HasExited)
+            catch (InstallerException ex)
             {
-                throw new Exception("Update timeout did not fire, but the process has not exited");
-            }
+                switch (ex.ErrorCode)
+                {
+                    case MsiExecReturnCode.Success:
+                        return;
 
-            switch (process.ExitCode)
-            {
-                case MsiExecReturnCode.Success:
-                    return;
+                    case MsiExecReturnCode.ProductVersion:
+                        // Product is already installed
+                        return;
 
-                case MsiExecReturnCode.ProductVersion:
-                    // Product is already installed
-                    return;
-
-                case MsiExecReturnCode.SuccessRebootRequired:
-                    throw new Exception("Reboot required");
-
-                default:
-                    throw new Exception("MSIEXEC.EXE exited with exit code " + process.ExitCode);
+                    default:
+                        throw new Exception("MSIEXEC.EXE exited with exit code " + ex.ErrorCode);
+                }
             }
         }
 
