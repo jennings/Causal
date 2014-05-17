@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Causal.Model.Updater.v1;
-using Causal.Updater.Updates;
-using Causal.Updater.Storage;
 using Causal.Model;
-using System.Net;
+using Causal.Model.Updater.v1;
+using Causal.Updater.Storage;
+using Causal.Updater.Updates;
 
 namespace Causal.Updater.v1
 {
@@ -33,6 +32,11 @@ namespace Causal.Updater.v1
 
         public Product Post(string id, [FromBody]Product request)
         {
+            if (String.IsNullOrWhiteSpace(id))
+                throw HttpResponseFactory.BadRequest("Product ID must be provided.");
+            if (request == null)
+                throw HttpResponseFactory.BadRequest("Product must be included in the body.");
+
             var product =
                 this.configuration.Products
                 .FirstOrDefault(
@@ -41,11 +45,18 @@ namespace Causal.Updater.v1
             if (product == null)
             {
                 product = new Product();
+                product.ProductId = id;
                 this.configuration.Products.Add(product);
             }
 
+            // Update the casing of the ProductId if it was sent
             if (id.Equals(request.ProductId, StringComparison.InvariantCultureIgnoreCase))
                 product.ProductId = request.ProductId;
+
+            product.Schedule = request.Schedule;
+            if (product.Schedule == null)
+                product.Schedule = new Schedule();
+
             this.configuration.SaveChanges();
             return product;
         }
