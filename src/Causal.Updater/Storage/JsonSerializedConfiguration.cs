@@ -43,8 +43,17 @@ namespace Causal.Updater.Storage
         {
             if (File.Exists(storagePath))
             {
-                var json = File.ReadAllText(storagePath, Encoding.UTF8);
-                settings = JsonConvert.DeserializeObject<Settings>(json);
+                try
+                {
+                    var json = File.ReadAllText(storagePath, Encoding.UTF8);
+                    settings = JsonConvert.DeserializeObject<Settings>(json);
+                }
+                catch (Exception)
+                {
+                    // For now, a corrupt configuration has no migration path
+                    settings = new Settings();
+                    SaveChanges();
+                }
             }
             else
             {
