@@ -68,7 +68,7 @@ namespace Causal.Updater.v1
                 .SingleOrDefault(p => p.ProductId.Equals(id, StringComparison.InvariantCultureIgnoreCase));
 
             if (product == null)
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw HttpResponseFactory.NotFound();
 
             this.configuration.Products.Remove(product);
             this.configuration.SaveChanges();
