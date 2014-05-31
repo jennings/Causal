@@ -1,6 +1,8 @@
 Causal
 =======
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ht3c7s5c8cdcm2i0)](https://ci.appveyor.com/project/jennings/causal)
+
 Causal is a client-server automatic updates system for your organization.
 
 It is not even remotely close to being functional.
