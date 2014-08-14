@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Causal.Model;
+using Causal.Updater.Storage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
-using Causal.Model;
-using Causal.Model.Updater.v1;
-using Causal.Updater.Storage;
-using Causal.Updater.Updates;
 
 namespace Causal.Updater.v1
 {
@@ -17,7 +13,7 @@ namespace Causal.Updater.v1
 
         public ProductController()
         {
-            this.configuration = new JsonSerializedConfiguration();
+            this.configuration = new AkavacheConfiguration();
         }
 
         public IEnumerable<Product> Get()
@@ -57,7 +53,7 @@ namespace Causal.Updater.v1
             if (product.Schedule == null)
                 product.Schedule = new Schedule();
 
-            this.configuration.SaveChanges();
+            this.configuration.SaveProduct(product);
             return product;
         }
 
@@ -70,8 +66,7 @@ namespace Causal.Updater.v1
             if (product == null)
                 throw HttpResponseFactory.NotFound();
 
-            this.configuration.Products.Remove(product);
-            this.configuration.SaveChanges();
+            this.configuration.DeleteProduct(product);
         }
     }
 }

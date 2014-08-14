@@ -8,8 +8,8 @@ namespace Causal.Updater.Storage
 {
     interface IConfiguration
     {
-        ICollection<Product> Products { get; }
-        void DiscardChanges();
-        void SaveChanges();
+        List<Product> Products { get; }
+        void SaveProduct(Product product);
+        void DeleteProduct(Product product);
     }
 }
